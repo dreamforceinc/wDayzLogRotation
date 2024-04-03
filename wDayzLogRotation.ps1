@@ -1,4 +1,7 @@
-# wDayzLogRotation 0.6
+# wDayzLogRotation v0.7
+# Copyright (c) 2024 Vladislav Salikov aka W0LF aka 'dreamforce'
+# https://github.com/dreamforceinc
+#
 # Input parameters:
 # 	<Path to server's location> : Absolute, fully qualified path to server's root folder.
 # 	<Name of instance>          : Usually name of folder inside the server's root folder. Can be absolute path.
