@@ -1,12 +1,14 @@
 # wDayzLogRotation 0.6
 # Input parameters:
-# 	<Absolute, fully qualified path to server's location>
-# 	<Name (relative to server's root path!) of instance> (Usually inside the server's root folder)
-# 	[Path to BEC location] (Optional. By default, BEC location inside the server's root folder)
+# 	<Path to server's location> : Absolute, fully qualified path to server's root folder.
+# 	<Name of instance>          : Usually name of folder inside the server's root folder. Can be absolute path.
+# 	                            : In this case, the last part of path interpreted as the name of instance.
+# 	[Path to BEC location]      : Optional. By default, BEC location inside the server's root folder.
 #
 # Example:
 # 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1" "D:\server tools\BEC"
 #
+# ----------[ Configuration ]----------
 $date = Get-Date			# Get current system date
 $daysAmount = 7				# Number of days to store logs
 $noDelete = $false			# For tests - don't delete logs
