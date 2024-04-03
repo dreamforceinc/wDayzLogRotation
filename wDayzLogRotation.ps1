@@ -1,11 +1,11 @@
-# wDayzLogRotation 0.5
+# wDayzLogRotation 0.6
 # Input parameters:
 # 	<Absolute, fully qualified path to server's location>
 # 	<Name (relative to server's root path!) of instance> (Usually inside the server's root folder)
 # 	[Path to BEC location] (Optional. By default, BEC location inside the server's root folder)
 #
 # Example:
-# 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1" "Z:\BEC"
+# 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1" "D:\server tools\BEC"
 #
 $date = Get-Date			# Get current system date
 $daysAmount = 7				# Number of days to store logs
@@ -18,7 +18,17 @@ if (!$serverLocation) { $serverLocation = "Z:\DayZServer" }
 if (!$instance) { $instance = "Instance" }
 if (!$becLocation) { $becLocation = "${serverLocation}\BEC" }
 
-$instanceDir = "${serverLocation}\${instance}"
+if ([System.IO.Path]::IsPathRooted($instance)) {
+	$instanceDir = "${instance}"
+	$instance = Split-Path -Path "${instanceDir}" -Leaf
+} else {
+	$instanceDir = "${serverLocation}\${instance}"
+}
+
+if (![System.IO.Path]::IsPathRooted($becLocation)) {
+	$becLocation = "${serverLocation}\${becLocation}"
+}
+
 $destDir = "${instanceDir}\RotatedLogs"
 $destDelDir = $destDir
 $daysAmount = [Math]::Abs($daysAmount)
@@ -33,7 +43,6 @@ Write-Host "Start Log rotation powershell script"
 # Write-Host "   instanceDir: '${instanceDir}'"
 # Write-Host "       destDir: '${destDir}'"
 # Write-Host "    destDelDir: '${destDelDir}'"
-# Write-Host "    daysAmount: '${daysAmount}'"
 # Write-Host "   becLocation: '${becLocation}'"
 # Write-Host "     becLogDir: '${becLogDir}'"
 # Write-Host "    becDestDir: '${becDestDir}'"
