@@ -1,4 +1,4 @@
-# wDayzLogRotation 0.3
+# wDayzLogRotation 0.4
 # Input parameters:
 # 	<Server location>
 # 	<Name (location) of instance>
@@ -6,17 +6,21 @@
 # Example:
 # 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1"
 #
-$date = Get-Date
-$noDelete = $false
+$date = Get-Date			# Get current system date
+$daysAmount = 7				# Number of days to store logs
+$noDelete = $false			# For tests - don't delete logs
+$serverLocation = $args[0]	# Path to server's location
+$instance = $args[1]		# Instance's name of folder
 
 Write-Host "Start Log rotation powershell script"
-
-$serverLocation = $args[0]
-$instance = $args[1]
 
 $instanceDir = "${serverLocation}\${instance}"
 $destDir = "${instanceDir}\RotatedLogs"
 $destDelDir = $destDir
+$daysAmount = [Math]::Abs($daysAmount)
+$becLocation = "${serverLocation}\BEC"
+$becLogDir = "${becLocation}\Log\${instance}"
+$becDestDir = "${destDir}\BEC"
 
 Write-Host "Now DAYZ..."
 $fileList = Get-Item -Path $instanceDir\*.rpt, $instanceDir\*.log | Where-Object { $_.LastWriteTime.Date -lt $date.Date }
@@ -34,8 +38,7 @@ foreach ($file in $fileList) {
 }
 Write-Host "Total: $($fileList.Length)"
 
-# $fileList = Get-Item -Path $destDir\*.rpt, $destDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddMonths(-1) }
-$fileList = Get-Item -Path $destDir\*.rpt, $destDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddDays(-7) }
+$fileList = Get-Item -Path $destDir\*.rpt, $destDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddDays(-($daysAmount)) }
 # Write-Host $fileList -Separator "`r`n"
 
 Write-Host "Removing RPTs and LOGs:"
@@ -63,8 +66,6 @@ Write-Host ""
 
 ### BEC ###
 Write-Host "Now BEC..."
-$becLogDir = "${serverLocation}\BEC\Log\${instance}"
-$becDestDir = "${destDir}\BEC"
 
 If (!(Test-Path -PathType Container $becDestDir)) {
 	New-Item -ItemType Directory -Path $becDestDir | Out-Null
@@ -81,8 +82,7 @@ foreach ($file in $fileList) {
 }
 Write-Host "Total: $($fileList.Length)"
 
-# $fileList = Get-Item -Path $becDestDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddMonths(-1) }
-$fileList = Get-Item -Path $becDestDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddDays(-7) }
+$fileList = Get-Item -Path $becDestDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddDays(-($daysAmount)) }
 # Write-Host $fileList -Separator "`r`n"
 
 Write-Host "Removing BEC's LOGs:"
