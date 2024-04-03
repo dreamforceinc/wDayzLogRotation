@@ -7,18 +7,18 @@
 #
 # Example:
 # 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1" "D:\server tools\BEC"
-#
-# ----------[ Configuration ]----------
-$date = Get-Date			# Get current system date
-$daysAmount = 7				# Number of days to store logs
-$noDelete = $false			# For tests - don't delete logs
-$serverLocation = $args[0]	# Path to server's location
-$instance = $args[1]		# Instance's NAME (relative to server's root path!) of folder
-$becLocation = $args[2]		# Path to BEC
 
-if (!$serverLocation) { $serverLocation = "Z:\DayZServer" }
-if (!$instance) { $instance = "Instance" }
-if (!$becLocation) { $becLocation = "${serverLocation}\BEC" }
+# ------------------------------[ Configuration ]------------------------------
+$daysAmount		= 7								# Number of days to store logs
+$serverLocation	= "Z:\DayZServer"				# Path to server's location
+$instance		= "Instance_1"					# Instance's NAME.
+$becLocation	= "${serverLocation}\BEC"		# Path to BEC
+$noDelete		= $false						# For tests - don't delete logs
+# -----------------------------------------------------------------------------
+
+if ($args[0]) { $serverLocation = $args[0] }
+if ($args[1]) { $instance = $args[1] }
+if ($args[2]) { $becLocation = $args[2] }
 
 if ([System.IO.Path]::IsPathRooted($instance)) {
 	$instanceDir = "${instance}"
@@ -32,12 +32,12 @@ if (![System.IO.Path]::IsPathRooted($becLocation)) {
 }
 
 $destDir = "${instanceDir}\RotatedLogs"
-$destDelDir = $destDir
 $daysAmount = [Math]::Abs($daysAmount)
 $becLogDir = "${becLocation}\Log\${instance}"
 $becDestDir = "${destDir}\BEC"
 
 Write-Host "Start Log rotation powershell script"
+$date = Get-Date
 
 # # Debug output
 # Write-Host "serverLocation: '${serverLocation}'"
@@ -68,7 +68,8 @@ Write-Host "Total: $($fileList.Length)"
 $fileList = Get-Item -Path $destDir\*.rpt, $destDir\*.log, $destDir\*.adm | Where-Object { $_.LastWriteTime -lt $date.AddDays(-($daysAmount)) }
 # Write-Host $fileList -Separator "`r`n"
 
-Write-Host "Removing RPTs and LOGs:"
+Write-Host "Removing RPTs, ADMs and LOGs:"
+$destDelDir = $destDir
 if ($noDelete) {
 	$destDelDir = "${destDir}\DeletedLogs"
 	
