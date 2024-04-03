@@ -1,26 +1,42 @@
-# wDayzLogRotation 0.4
+# wDayzLogRotation 0.5
 # Input parameters:
-# 	<Server location>
-# 	<Name (location) of instance>
+# 	<Absolute, fully qualified path to server's location>
+# 	<Name (relative to server's root path!) of instance> (Usually inside the server's root folder)
+# 	[Path to BEC location] (Optional. By default, BEC location inside the server's root folder)
 #
 # Example:
-# 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1"
+# 	powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Instance_1" "Z:\BEC"
 #
 $date = Get-Date			# Get current system date
 $daysAmount = 7				# Number of days to store logs
 $noDelete = $false			# For tests - don't delete logs
 $serverLocation = $args[0]	# Path to server's location
-$instance = $args[1]		# Instance's name of folder
+$instance = $args[1]		# Instance's NAME (relative to server's root path!) of folder
+$becLocation = $args[2]		# Path to BEC
 
-Write-Host "Start Log rotation powershell script"
+if (!$serverLocation) { $serverLocation = "Z:\DayZServer" }
+if (!$instance) { $instance = "Instance" }
+if (!$becLocation) { $becLocation = "${serverLocation}\BEC" }
 
 $instanceDir = "${serverLocation}\${instance}"
 $destDir = "${instanceDir}\RotatedLogs"
 $destDelDir = $destDir
 $daysAmount = [Math]::Abs($daysAmount)
-$becLocation = "${serverLocation}\BEC"
 $becLogDir = "${becLocation}\Log\${instance}"
 $becDestDir = "${destDir}\BEC"
+
+Write-Host "Start Log rotation powershell script"
+
+# # Debug output
+# Write-Host "serverLocation: '${serverLocation}'"
+# Write-Host "      instance: '${instance}'"
+# Write-Host "   instanceDir: '${instanceDir}'"
+# Write-Host "       destDir: '${destDir}'"
+# Write-Host "    destDelDir: '${destDelDir}'"
+# Write-Host "    daysAmount: '${daysAmount}'"
+# Write-Host "   becLocation: '${becLocation}'"
+# Write-Host "     becLogDir: '${becLogDir}'"
+# Write-Host "    becDestDir: '${becDestDir}'"
 
 Write-Host "Now DAYZ..."
 $fileList = Get-Item -Path $instanceDir\*.rpt, $instanceDir\*.log, $instanceDir\*.adm | Where-Object { $_.LastWriteTime.Date -lt $date.Date }
