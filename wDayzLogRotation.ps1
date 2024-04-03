@@ -23,7 +23,7 @@ $becLogDir = "${becLocation}\Log\${instance}"
 $becDestDir = "${destDir}\BEC"
 
 Write-Host "Now DAYZ..."
-$fileList = Get-Item -Path $instanceDir\*.rpt, $instanceDir\*.log | Where-Object { $_.LastWriteTime.Date -lt $date.Date }
+$fileList = Get-Item -Path $instanceDir\*.rpt, $instanceDir\*.log, $instanceDir\*.adm | Where-Object { $_.LastWriteTime.Date -lt $date.Date }
 # Write-Host $fileList -Separator "`r`n"
 
 If (!(Test-Path -PathType Container $destDir)) {
@@ -38,7 +38,7 @@ foreach ($file in $fileList) {
 }
 Write-Host "Total: $($fileList.Length)"
 
-$fileList = Get-Item -Path $destDir\*.rpt, $destDir\*.log | Where-Object { $_.LastWriteTime -lt $date.AddDays(-($daysAmount)) }
+$fileList = Get-Item -Path $destDir\*.rpt, $destDir\*.log, $destDir\*.adm | Where-Object { $_.LastWriteTime -lt $date.AddDays(-($daysAmount)) }
 # Write-Host $fileList -Separator "`r`n"
 
 Write-Host "Removing RPTs and LOGs:"
