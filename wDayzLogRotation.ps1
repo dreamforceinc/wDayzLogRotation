@@ -3,36 +3,67 @@
 # https://github.com/dreamforceinc
 #
 # Input parameters:
-#   <Path to server location>           : Absolute, fully qualified path to server's root folder.
-#   <Path to instance>                  : Absolute, fully qualified path to server's instance folder.
-#   [Path to BEC's logs location]       : Optional. By default, BEC location inside the server's root folder.
-#   [Path to Admin Tool's logs location]: Optional. By default, AT location inside the instance's folder.
+#   -Server <Path to server location>           : Absolute, fully qualified path to server's root folder.
+#   -Instance <Path to instance>                : Absolute, fully qualified path to server's instance folder.
+#   -RotatedLogs <Path to store rotated logs>   : Absolute, fully qualified path to rotated logs folder.
+#   -BecLogs [Path to BEC's logs location]      : Optional.
+#   -ATLogs [Path to Admin Tool's logs location]: Optional.
 #
-# Example:
-#   powershell.exe -File "wDayzLogRotation.ps1" "Z:\Servers\DayZServer" "Z:\Servers\DayZServer\profiles\Instance_1" "D:\server tools\BEC" "Z:\Servers\DayZServer\profiles\Instance_1\VPPadminTools"
+Param (
+    [Alias("Server")]
+    [Parameter (Position = 0)]
+    [string]$ServerLocation = $(throw "ERROR!!! Required parameter '-Server' is missing!"),
+    
+    [Alias("Instance")]
+    [Parameter (Position = 1)]
+    [string]$instanceDir = $(throw "ERROR!!! Required parameter '-Instance' is missing!"),
+    
+    [Alias("RotatedLogs")]
+    [Parameter (Position = 2)]
+    [string]$destDir = $(throw "ERROR!!! Required parameter '-RotatedLogs' is missing!"),
+    
+    [Alias("BecLogs")]
+    [Parameter (Position = 3)]
+    [string]$becLogDir = $null,
+    
+    [Alias("ATLogs")]
+    [Parameter (Position = 4)]
+    [string]$adminToolLogDir = $null
+)
 
 # ------------------------------[ Configuration ]------------------------------
-$daysAmount = 7     # Number of days to store logs
-$noDelete   = $true # For tests - don't delete logs
+$daysAmount = 7      # Number of days to store logs
+$noDelete   = $true  # For tests - don't delete logs
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
 # -------------------------[ !!! DON'T EDIT BELOW !!! ]------------------------
-$serverLocation  = $args[0]
-$instanceDir     = $args[1]
-$becLogDir       = $null
-$adminToolLogDir = $null
-if ($args[2]) { $becLogDir = $args[2] }
-if ($args[3]) { $adminToolLogDir = $args[3] }
+# -----------------------------------------------------------------------------
+if (!(Test-Path -Path "${ServerLocation}")) {
+    Write-Error "The path '${ServerLocation}' does not exist!"
+    Exit
+}
+if (!(Test-Path -Path "${instanceDir}")) {
+    Write-Error "The path '${instanceDir}' does not exist!"
+    Exit
+}
+if ($becLogDir -and !(Test-Path -Path "${becLogDir}")) {
+    Write-Error "The path '${becLogDir}' does not exist!"
+    Exit
+}
+if ($adminToolLogDir -and !(Test-Path -Path "${adminToolLogDir}")) {
+    Write-Error "The path '${adminToolLogDir}' does not exist!"
+    Exit
+}
 
 $daysAmount = [Math]::Abs($daysAmount)
 $instance = Split-Path -Path "${instanceDir}" -Leaf
-$destDir = "${instanceDir}\RotatedLogs"
 $destDelDir = "${destDir}\DeletedLogs"
-if ($becLogDir) { $becDestDir = "${destDir}\BEC" }
-if ($adminToolLogDir) { $adminToolDestDir = "${destDir}\AdminTool" }
+$becDestDir = "${destDir}\BEC"
+$adminToolDestDir = "${destDir}\AdminTool"
 
 ### Debug output ###
-# Write-Host "   serverLocation: '${serverLocation}'"
+# Write-Host "   ServerLocation: '${ServerLocation}'"
 # Write-Host "      instanceDir: '${instanceDir}'"
 # Write-Host "         instance: '${instance}'"
 # Write-Host "          destDir: '${destDir}'"
@@ -45,7 +76,7 @@ if ($adminToolLogDir) { $adminToolDestDir = "${destDir}\AdminTool" }
 Write-Host "Start Log rotation powershell script"
 $date = Get-Date
 $fileList = $null
-
+#<#
 #region ### DayZ Game ###
 Write-Host "Rotating DAYZ logs..."
 
@@ -176,5 +207,5 @@ if ($adminToolDestDir) {
     Write-Host ""
 }
 #endregion
-
+#>
 Write-Host "End Log rotation powershell script"
